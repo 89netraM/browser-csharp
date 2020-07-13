@@ -1,0 +1,8 @@
+# Ignore C# source
+wasm/
+
+# The gulp is useless without the src
+gulpfile.js
+
+# Old package files
+*.tgz

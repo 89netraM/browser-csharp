@@ -1,0 +1,15 @@
+{
+	"name": "browser-csharp",
+	"version": "0.0.1",
+	"description": "Executes C# snippets in the browser.",
+	"author": "Mårten Åsberg",
+	"license": "MIT",
+	"scripts": {
+		"prepack": "gulp wasm-build"
+	},
+	"devDependencies": {
+		"del": "^5.1.0",
+		"gulp": "^4.0.2",
+		"gulp-cli": "^2.3.0"
+	}
+}
