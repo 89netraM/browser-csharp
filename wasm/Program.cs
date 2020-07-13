@@ -43,7 +43,7 @@ namespace BrowserCSharp
 			}
 
 			Assembly[] loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
-			using HttpClient client = new HttpClient();
+			HttpClient client = new HttpClient();
 			client.BaseAddress = new Uri(baseUri);
 
 			IDictionary<string, Task<PortableExecutableReference>> foundReferences = new Dictionary<string, Task<PortableExecutableReference>>();
@@ -60,10 +60,13 @@ namespace BrowserCSharp
 
 			if (references.All(foundReferences.ContainsKey))
 			{
-				return Task.WhenAll(foundReferences.Values);
+				Task<PortableExecutableReference[]> allTask = Task.WhenAll(foundReferences.Values);
+				allTask.GetAwaiter().OnCompleted(client.Dispose);
+				return allTask;
 			}
 			else
 			{
+				client.Dispose();
 				return Task.FromException<PortableExecutableReference[]>(
 					new Exception("Could not find all required references for runtime compilation. " +
 						$"Missing references: {String.Join(", ", references.Except(foundReferences.Keys))}")
