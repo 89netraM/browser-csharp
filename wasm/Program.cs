@@ -30,6 +30,8 @@ namespace BrowserCSharp
 
 		private static Task<PortableExecutableReference[]> loadedReferences;
 
+		private static IDictionary<string, ScriptContext> previousCompilations = new Dictionary<string, ScriptContext>();
+
 		public static void Main()
 		{
 			WebAssemblyHostBuilder builder = WebAssemblyHostBuilder.CreateDefault();
@@ -97,13 +99,32 @@ namespace BrowserCSharp
 			}
 		}
 
-		private static async Task<CompilationResult> CompileScript(string code)
+		[JSInvokable]
+		public static async Task<ExecutionResult> ExecuteScriptInContext(string code, string contextId)
+		{
+			ScriptContext context = previousCompilations.TryGetValue(contextId, out ScriptContext c) ? c : ScriptContext.Empty;
+			CompilationResult compilationResult = await CompileScript(code, context);
+
+			if (compilationResult.Success)
+			{
+				context = context.AddCompilation(compilationResult.Compilation);
+				previousCompilations[contextId] = context;
+				return await RunScript(compilationResult.Assembly, compilationResult.Compilation, context.States);
+			}
+			else
+			{
+				return new ExecutionResult(null, null, String.Join('\n', compilationResult.Errors.Select(x => x.GetMessage())));
+			}
+		}
+
+		private static async Task<CompilationResult> CompileScript(string code, ScriptContext? context = null)
 		{
 			CSharpCompilation compilation = CSharpCompilation.CreateScriptCompilation(
 				Path.GetRandomFileName(),
 				CSharpSyntaxTree.ParseText(code, CSharpParseOptions.Default.WithKind(SourceCodeKind.Script).WithLanguageVersion(LanguageVersion.Preview)),
 				await loadedReferences,
-				new CSharpCompilationOptions(outputKind: OutputKind.DynamicallyLinkedLibrary, usings: defaultUsings)
+				new CSharpCompilationOptions(outputKind: OutputKind.DynamicallyLinkedLibrary, usings: defaultUsings),
+				context?.Compilation
 			);
 
 			IEnumerable<Diagnostic> parsingErrors = compilation.GetDiagnostics().Where(x => x.Severity == DiagnosticSeverity.Error);
@@ -127,7 +148,11 @@ namespace BrowserCSharp
 			}
 		}
 
-		private static async Task<ExecutionResult> RunScript(Assembly assembly, Compilation compilation)
+		private static Task<ExecutionResult> RunScript(Assembly assembly, Compilation compilation)
+		{
+			return RunScript(assembly, compilation, new object[] { null, null });
+		}
+		private static async Task<ExecutionResult> RunScript(Assembly assembly, Compilation compilation, object[] states)
 		{
 			IMethodSymbol entryPoint = compilation.GetEntryPoint(CancellationToken.None);
 			Type type = assembly.GetType($"{entryPoint.ContainingNamespace.MetadataName}.{entryPoint.ContainingType.MetadataName}"); ;
@@ -138,7 +163,7 @@ namespace BrowserCSharp
 			Console.SetOut(sw);
 
 			Func<object[], Task<object>> submission = (Func<object[], Task<object>>)entryPointMethod.CreateDelegate(typeof(Func<object[], Task<object>>));
-			object result = await submission.Invoke(new object[] { null, null });
+			object result = await submission.Invoke(states);
 
 			Console.SetOut(ogOut);
 

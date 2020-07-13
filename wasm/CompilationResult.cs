@@ -1,17 +1,18 @@
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace BrowserCSharp
 {
 	readonly struct CompilationResult
 	{
 		public Assembly Assembly { get; }
-		public Compilation Compilation { get; }
+		public CSharpCompilation Compilation { get; }
 		public IEnumerable<Diagnostic> Errors { get; }
 		public bool Success { get; }
 
-		public CompilationResult(Assembly assembly, Compilation compilation)
+		public CompilationResult(Assembly assembly, CSharpCompilation compilation)
 		{
 			Assembly = assembly;
 			Compilation = compilation;
