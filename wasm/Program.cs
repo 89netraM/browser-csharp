@@ -5,9 +5,13 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Emit;
+using Microsoft.JSInterop;
 
 namespace BrowserCSharp
 {
@@ -19,6 +23,10 @@ namespace BrowserCSharp
 			"netstandard",
 			"System"
 		);
+		private static readonly IEnumerable<string> defaultUsings = new[]
+		{
+			"System"
+		};
 
 		private static Task<PortableExecutableReference[]> loadedReferences;
 
@@ -72,6 +80,70 @@ namespace BrowserCSharp
 						$"Missing references: {String.Join(", ", references.Except(foundReferences.Keys))}")
 				);
 			}
+		}
+
+		[JSInvokable]
+		public static async Task<ExecutionResult> ExecuteScript(string code)
+		{
+			CompilationResult compilationResult = await CompileScript(code);
+
+			if (compilationResult.Success)
+			{
+				return await RunScript(compilationResult.Assembly, compilationResult.Compilation);
+			}
+			else
+			{
+				return new ExecutionResult(null, null, String.Join('\n', compilationResult.Errors.Select(x => x.GetMessage())));
+			}
+		}
+
+		private static async Task<CompilationResult> CompileScript(string code)
+		{
+			CSharpCompilation compilation = CSharpCompilation.CreateScriptCompilation(
+				Path.GetRandomFileName(),
+				CSharpSyntaxTree.ParseText(code, CSharpParseOptions.Default.WithKind(SourceCodeKind.Script).WithLanguageVersion(LanguageVersion.Preview)),
+				await loadedReferences,
+				new CSharpCompilationOptions(outputKind: OutputKind.DynamicallyLinkedLibrary, usings: defaultUsings)
+			);
+
+			IEnumerable<Diagnostic> parsingErrors = compilation.GetDiagnostics().Where(x => x.Severity == DiagnosticSeverity.Error);
+			if (parsingErrors.Any())
+			{
+				return new CompilationResult(parsingErrors);
+			}
+			else
+			{
+				using MemoryStream ms = new MemoryStream();
+				EmitResult result = compilation.Emit(ms);
+
+				if (result.Success)
+				{
+					return new CompilationResult(Assembly.Load(ms.ToArray()), compilation);
+				}
+				else
+				{
+					return new CompilationResult(result.Diagnostics);
+				}
+			}
+		}
+
+		private static async Task<ExecutionResult> RunScript(Assembly assembly, Compilation compilation)
+		{
+			IMethodSymbol entryPoint = compilation.GetEntryPoint(CancellationToken.None);
+			Type type = assembly.GetType($"{entryPoint.ContainingNamespace.MetadataName}.{entryPoint.ContainingType.MetadataName}"); ;
+			MethodInfo entryPointMethod = type.GetMethod(entryPoint.MetadataName);
+
+			TextWriter ogOut = Console.Out;
+			using StringWriter sw = new StringWriter();
+			Console.SetOut(sw);
+
+			Func<object[], Task<object>> submission = (Func<object[], Task<object>>)entryPointMethod.CreateDelegate(typeof(Func<object[], Task<object>>));
+			object result = await submission.Invoke(new object[] { null, null });
+
+			Console.SetOut(ogOut);
+
+			string stdOut = sw.ToString();
+			return new ExecutionResult(result, stdOut.Length > 0 ? stdOut : null, null);
 		}
 	}
 }
