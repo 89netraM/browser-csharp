@@ -1,6 +1,8 @@
-import { DotNet } from "./DotNet";
 import { ScriptResult } from "./ScriptResult";
 
+declare namespace DotNet {
+	function invokeMethodAsync(namespace: string, method: string, ...args: Array<any>): Promise<any>;
+}
 
 export namespace BrowserCSharp {
 	const namespaceName = "BrowserCSharp";
