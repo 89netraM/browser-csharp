@@ -3,6 +3,7 @@
 		"allowJs": true,
 		"alwaysStrict": true,
 		"module": "ES6",
+		"moduleResolution": "node",
 		"outDir": "dist",
 		"target": "ES6"
 	},

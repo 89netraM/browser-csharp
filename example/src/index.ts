@@ -22,7 +22,7 @@ async function runCode(code: string): Promise<void> {
 	const result = await BrowserCSharp.ExecuteScript(code, "contextId");
 	if (result.stdErr == null) {
 		if (result.stdOut != null) {
-			result.stdOut.split("\n").forEach(log);
+			result.stdOut.split("\n").forEach(o => log(o));
 		}
 		if (result.result != null) {
 			log(result.result, "out");
