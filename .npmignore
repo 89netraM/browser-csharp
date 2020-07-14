@@ -4,5 +4,11 @@ wasm/
 # The gulp is useless without the src
 gulpfile.js
 
+# Ignore TypeScript source
+src/
+
+# TS Config file is useless without the src
+tsconfig.json
+
 # Old package files
 *.tgz
