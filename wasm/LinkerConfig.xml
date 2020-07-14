@@ -3,4 +3,5 @@
 	<assembly fullname="mscorlib" />
 	<assembly fullname="netstandard" />
 	<assembly fullname="System" />
+	<assembly fullname="System.Core" />
 </linker>

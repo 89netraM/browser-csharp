@@ -21,11 +21,13 @@ namespace BrowserCSharp
 		private static readonly IImmutableSet<string> references = ImmutableHashSet.Create(
 			"mscorlib",
 			"netstandard",
-			"System"
+			"System",
+			"System.Core"
 		);
 		private static readonly IEnumerable<string> defaultUsings = new[]
 		{
-			"System"
+			"System",
+			"System.Linq"
 		};
 
 		private static Task<PortableExecutableReference[]> loadedReferences;
