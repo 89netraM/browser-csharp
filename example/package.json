@@ -1,0 +1,20 @@
+{
+	"name": "browser-csharp-example",
+	"version": "0.0.1",
+	"description": "An example of how to use the browser-csharp package.",
+	"private": true,
+	"author": "Mårten Åsberg",
+	"license": "MIT",
+	"scripts": {
+		"postinstall": "cd .. && npm run prepack",
+		"start": "webpack-dev-server --open"
+	},
+	"devDependencies": {
+		"browser-csharp": "file:..",
+		"ts-loader": "^8.0.0",
+		"typescript": "^3.9.6",
+		"webpack": "^4.43.0",
+		"webpack-cli": "^3.3.12",
+		"webpack-dev-server": "^3.11.0"
+	}
+}

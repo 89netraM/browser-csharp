@@ -12,3 +12,6 @@ tsconfig.json
 
 # Old package files
 *.tgz
+
+# No need to package the example project
+example/

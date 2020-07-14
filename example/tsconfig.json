@@ -1,0 +1,8 @@
+{
+	"compilerOptions": {
+		"alwaysStrict": true,
+		"module": "ES6",
+		"outDir": "dist",
+		"target": "ES6"
+	}
+}
