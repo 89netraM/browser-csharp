@@ -4,9 +4,57 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
 		<title>Browser C# Example</title>
+		<style>
+			* {
+				box-sizing: border-box;
+			}
+			.code, .code input {
+				font-family: 'Courier New', Courier, monospace;
+				font-weight: bold;
+				font-size: 12px;
+			}
+			.code {
+				width: 100%;
+			}
+			#output {
+				width: 100%;
+				height: 500px;
+				list-style: none;
+				padding-left: 2ch;
+				margin: 0px;
+				overflow-y: auto;
+			}
+			#output li {
+				position: relative;
+			}
+			#output .in::before {
+				content: ">";
+				position: absolute;
+				left: -2ch;
+			}
+			#output .out::before {
+				content: "<";
+				position: absolute;
+				left: -2ch;
+			}
+			#output .error {
+				color: hsl(0, 100%, 50%);
+			}
+			#input {
+				width: 100%;
+				outline: none;
+				padding-left: 2ch;
+			}
+		</style>
 	</head>
 	<body>
 		<h1>Browser C# Example</h1>
+
+		<div class="code">
+			<ol id="output"></ol>
+			<input id="input" placeholder="Write C# code and press enter">
+		</div>
+
 		<script src="_framework/blazor.webassembly.js"></script>
 	</body>
 </html>

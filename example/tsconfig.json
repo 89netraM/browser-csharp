@@ -1,8 +1,10 @@
 {
 	"compilerOptions": {
+		"allowJs": true,
 		"alwaysStrict": true,
 		"module": "ES6",
 		"outDir": "dist",
 		"target": "ES6"
-	}
+	},
+	"include": [ "src/**/*" ]
 }
