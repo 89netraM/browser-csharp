@@ -1,0 +1,13 @@
+{
+	"compilerOptions": {
+		"alwaysStrict": true,
+		"declaration": true,
+		"declarationDir": "typings",
+		"lib": [ "ES6" ],
+		"module": "CommonJS",
+		"moduleResolution": "node",
+		"outDir": "out",
+		"target": "ES6"
+	},
+	"include": [ "src/**/*" ]
+}
