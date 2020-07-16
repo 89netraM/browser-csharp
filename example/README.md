@@ -1,5 +1,7 @@
 # Browser C# Example
 
+<small>[Link to live example](https://åsberg.net/browser-csharp/)</small>
+
 This is an example project showcasing how to use the main Browser C# package
 together with webpack.
 

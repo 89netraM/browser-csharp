@@ -1,5 +1,9 @@
 # Browser C#
 
+## Example
+
+For an example of what this package can do, look in the [`example`](./example) folder for the code and [here](https://åsberg.net/browser-csharp/) for a live version.
+
 ## Development
 
 This package requires that .NET Core is installed for development. Download the
