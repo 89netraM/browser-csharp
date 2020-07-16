@@ -29,7 +29,7 @@ async function runCode(code: string): Promise<void> {
 		}
 	}
 	else {
-		result.stdOut.split("\n").forEach(o => log(o, "error"));
+		result.stdErr.split("\n").forEach(o => log(o, "error"));
 	}
 }
 
