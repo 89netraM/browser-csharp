@@ -32,12 +32,30 @@ namespace BrowserCSharp
 
 		private static Task<PortableExecutableReference[]> loadedReferences;
 
+		private static IJSRuntime jsRuntime;
+
 		private static IDictionary<string, ScriptContext> previousCompilations = new Dictionary<string, ScriptContext>();
 
 		public static void Main()
 		{
 			WebAssemblyHostBuilder builder = WebAssemblyHostBuilder.CreateDefault();
+			WebAssemblyHost host = builder.Build();
+			jsRuntime = (IJSRuntime)host.Services.GetService(typeof(IJSRuntime));
+
 			loadedReferences = GetReferences(builder.HostEnvironment.BaseAddress);
+			loadedReferences.GetAwaiter().OnCompleted(notifyJS);
+
+			static void notifyJS()
+			{
+				if (loadedReferences.IsCompletedSuccessfully)
+				{
+					jsRuntime.InvokeVoidAsync("BrowserCSharp.loaded");
+				}
+				else
+				{
+					jsRuntime.InvokeVoidAsync("BrowserCSharp.failed");
+				}
+			}
 		}
 
 		private static Task<PortableExecutableReference[]> GetReferences(string baseUri)

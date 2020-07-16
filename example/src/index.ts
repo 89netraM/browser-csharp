@@ -44,3 +44,12 @@ function log(content: string, type?: "in" | "out" | "error"): void {
 }
 
 window.addEventListener("load", init, false);
+
+BrowserCSharp.OnReady(success => {
+	if (success) {
+		input.placeholder = "Write C# code and press enter";
+	}
+	else {
+		input.placeholder = "Failed to load runtime dependencies";
+	}
+});

@@ -9,6 +9,17 @@ export namespace BrowserCSharp {
 	const executeName = "ExecuteScript";
 	const executeInContextName = "ExecuteScriptInContext";
 
+	let onReadyResolve: () => void;
+	let onReadyReject: () => void;
+	const onReadyPromise = new Promise((resolve, reject) => {
+		onReadyResolve = resolve;
+		onReadyReject = reject;
+	});
+	window["BrowserCSharp"] = {
+		loaded: onReadyResolve,
+		failed: onReadyReject
+	};
+
 	/**
 	 * Executes the provided C# code.
 	 * @param code C# code.
@@ -33,6 +44,16 @@ export namespace BrowserCSharp {
 		else {
 			return DotNet.invokeMethodAsync(namespaceName, executeName, code);
 		}
+	}
+
+	/**
+	 * Calls the `callback` when the BrowserCSharp is ready to execute scripts.
+	 * @param callback Called with an boolean indicating the success (or
+	 *                 failure) of loading BrowserCSharp.
+	 */
+	export function OnReady(callback: (success: boolean) => void): void {
+		onReadyPromise.then(() => callback(true));
+		onReadyPromise.catch(() => callback(false));
 	}
 }
 
