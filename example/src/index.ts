@@ -10,7 +10,7 @@ function init(): void {
 }
 
 async function onInputKey(e: KeyboardEvent): Promise<void> {
-	if (e.code === "Enter" && (input.value != null && input.value.length > 0)) {
+	if (e.key === "Enter" && (input.value != null && input.value.length > 0)) {
 		const code = input.value;
 		log(code, "in");
 
