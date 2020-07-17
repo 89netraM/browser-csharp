@@ -107,11 +107,11 @@ namespace BrowserCSharp
 		[JSInvokable]
 		public static async Task<ExecutionResult> ExecuteScript(string code)
 		{
-			CompilationResult compilationResult = await CompileScript(code);
+			CompilationResult compilationResult = await CompileScript(code).ConfigureAwait(false);
 
 			if (compilationResult.Success)
 			{
-				return await RunScript(compilationResult.Assembly, compilationResult.Compilation);
+				return await RunScript(compilationResult.Assembly, compilationResult.Compilation).ConfigureAwait(false);
 			}
 			else
 			{
@@ -122,14 +122,14 @@ namespace BrowserCSharp
 		[JSInvokable]
 		public static async Task<ExecutionResult> ExecuteScriptInContext(string code, string contextId)
 		{
-			ScriptContext context = previousCompilations.TryGetValue(contextId, out ScriptContext c) ? c : ScriptContext.Empty;
-			CompilationResult compilationResult = await CompileScript(code, context);
+			ScriptContext context = await Task.Run(() => previousCompilations.TryGetValue(contextId, out ScriptContext c) ? c : ScriptContext.Empty).ConfigureAwait(false);
+			CompilationResult compilationResult = await CompileScript(code, context).ConfigureAwait(false);
 
 			if (compilationResult.Success)
 			{
 				context = context.AddCompilation(compilationResult.Compilation);
 				previousCompilations[contextId] = context;
-				return await RunScript(compilationResult.Assembly, compilationResult.Compilation, context.States);
+				return await RunScript(compilationResult.Assembly, compilationResult.Compilation, context.States).ConfigureAwait(false);
 			}
 			else
 			{
@@ -142,7 +142,7 @@ namespace BrowserCSharp
 			CSharpCompilation compilation = CSharpCompilation.CreateScriptCompilation(
 				Path.GetRandomFileName(),
 				CSharpSyntaxTree.ParseText(code, CSharpParseOptions.Default.WithKind(SourceCodeKind.Script).WithLanguageVersion(LanguageVersion.Preview)),
-				await loadedReferences,
+				await loadedReferences.ConfigureAwait(false),
 				new CSharpCompilationOptions(outputKind: OutputKind.DynamicallyLinkedLibrary, usings: defaultUsings),
 				context?.Compilation
 			);
@@ -183,7 +183,7 @@ namespace BrowserCSharp
 			Console.SetOut(sw);
 
 			Func<object[], Task<object>> submission = (Func<object[], Task<object>>)entryPointMethod.CreateDelegate(typeof(Func<object[], Task<object>>));
-			object result = await submission.Invoke(states);
+			object result = await submission.Invoke(states).ConfigureAwait(false);
 
 			Console.SetOut(ogOut);
 
