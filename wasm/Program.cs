@@ -105,36 +105,46 @@ namespace BrowserCSharp
 		}
 
 		[JSInvokable]
-		public static async Task<ExecutionResult> ExecuteScript(string code)
+		public static Task<ExecutionResult> ExecuteScript(string code)
 		{
-			CompilationResult compilationResult = await CompileScript(code);
+			async Task<ExecutionResult> execute()
+			{
+				CompilationResult compilationResult = await CompileScript(code).ConfigureAwait(false);
 
-			if (compilationResult.Success)
-			{
-				return await RunScript(compilationResult.Assembly, compilationResult.Compilation);
+				if (compilationResult.Success)
+				{
+					return await RunScript(compilationResult.Assembly, compilationResult.Compilation).ConfigureAwait(false);
+				}
+				else
+				{
+					return new ExecutionResult(null, null, String.Join('\n', compilationResult.Errors.Select(x => x.GetMessage())));
+				}
 			}
-			else
-			{
-				return new ExecutionResult(null, null, String.Join('\n', compilationResult.Errors.Select(x => x.GetMessage())));
-			}
+
+			return Task.Run(execute);
 		}
 
 		[JSInvokable]
-		public static async Task<ExecutionResult> ExecuteScriptInContext(string code, string contextId)
+		public static Task<ExecutionResult> ExecuteScriptInContext(string code, string contextId)
 		{
-			ScriptContext context = previousCompilations.TryGetValue(contextId, out ScriptContext c) ? c : ScriptContext.Empty;
-			CompilationResult compilationResult = await CompileScript(code, context);
+			async Task<ExecutionResult> execute()
+			{
+				ScriptContext context = previousCompilations.TryGetValue(contextId, out ScriptContext c) ? c : ScriptContext.Empty;
+				CompilationResult compilationResult = await CompileScript(code, context).ConfigureAwait(false);
 
-			if (compilationResult.Success)
-			{
-				context = context.AddCompilation(compilationResult.Compilation);
-				previousCompilations[contextId] = context;
-				return await RunScript(compilationResult.Assembly, compilationResult.Compilation, context.States);
+				if (compilationResult.Success)
+				{
+					context = context.AddCompilation(compilationResult.Compilation);
+					previousCompilations[contextId] = context;
+					return await RunScript(compilationResult.Assembly, compilationResult.Compilation, context.States).ConfigureAwait(false);
+				}
+				else
+				{
+					return new ExecutionResult(null, null, String.Join('\n', compilationResult.Errors.Select(x => x.GetMessage())));
+				}
 			}
-			else
-			{
-				return new ExecutionResult(null, null, String.Join('\n', compilationResult.Errors.Select(x => x.GetMessage())));
-			}
+
+			return Task.Run(execute);
 		}
 
 		private static async Task<CompilationResult> CompileScript(string code, ScriptContext? context = null)
@@ -142,7 +152,7 @@ namespace BrowserCSharp
 			CSharpCompilation compilation = CSharpCompilation.CreateScriptCompilation(
 				Path.GetRandomFileName(),
 				CSharpSyntaxTree.ParseText(code, CSharpParseOptions.Default.WithKind(SourceCodeKind.Script).WithLanguageVersion(LanguageVersion.Preview)),
-				await loadedReferences,
+				await loadedReferences.ConfigureAwait(false),
 				new CSharpCompilationOptions(outputKind: OutputKind.DynamicallyLinkedLibrary, usings: defaultUsings),
 				context?.Compilation
 			);
@@ -183,7 +193,7 @@ namespace BrowserCSharp
 			Console.SetOut(sw);
 
 			Func<object[], Task<object>> submission = (Func<object[], Task<object>>)entryPointMethod.CreateDelegate(typeof(Func<object[], Task<object>>));
-			object result = await submission.Invoke(states);
+			object result = await submission.Invoke(states).ConfigureAwait(false);
 
 			Console.SetOut(ogOut);
 
