@@ -9,12 +9,21 @@ function init(): void {
 	input.addEventListener("keypress", onInputKey, false);
 }
 
-function onInputKey(e: KeyboardEvent): void {
+async function onInputKey(e: KeyboardEvent): Promise<void> {
 	if (e.code === "Enter" && (input.value != null && input.value.length > 0)) {
-		log(input.value, "in");
-		runCode(input.value);
-		
+		const code = input.value;
+		log(code, "in");
+
 		input.value = "";
+		const ogPlaceholder = input.placeholder;
+		input.placeholder = "Executing...";
+		input.disabled = true;
+
+		await runCode(code);
+		
+		input.placeholder = ogPlaceholder;
+		input.disabled = false;
+		input.focus();
 	}
 }
 
