@@ -3,16 +3,42 @@ import { BrowserCSharp } from "browser-csharp";
 let output: HTMLOListElement;
 let input: HTMLInputElement;
 
+const history = new Array<string>();
+let historyIndex = -1;
+function moveHistory(direction: -1 | 1): string {
+	historyIndex = Math.max(-1, Math.min(historyIndex + direction, history.length - 1));
+
+	if (historyIndex === -1) {
+		return "";
+	}
+	else {
+		return history[historyIndex];
+	}
+}
+
 function init(): void {
 	output = document.getElementById("output") as HTMLOListElement;
 	input = document.getElementById("input") as HTMLInputElement;
-	input.addEventListener("keypress", onInputKey, false);
+	input.addEventListener("keydown", onInputKey, false);
 }
 
 async function onInputKey(e: KeyboardEvent): Promise<void> {
+	function arrowValue(key: string): -1 | 0 | 1 {
+		if (key === "ArrowUp") {
+			return 1;
+		}
+		else if (key === "ArrowDown") {
+			return -1;
+		}
+		else {
+			return 0;
+		}
+	}
+
 	if (e.key === "Enter" && (input.value != null && input.value.length > 0)) {
 		const code = input.value;
 		log(code, "in");
+		historyIndex = -1;
 
 		input.value = "";
 		const ogPlaceholder = input.placeholder;
@@ -24,6 +50,17 @@ async function onInputKey(e: KeyboardEvent): Promise<void> {
 		input.placeholder = ogPlaceholder;
 		input.disabled = false;
 		input.focus();
+	}
+	else {
+		const direction = arrowValue(e.key);
+		if (direction !== 0) {
+			input.value = moveHistory(direction);
+			input.selectionStart = input.selectionEnd = input.value.length;
+			e.preventDefault();
+		}
+		else {
+			historyIndex = -1;
+		}
 	}
 }
 
@@ -50,6 +87,10 @@ function log(content: string, type?: "in" | "out" | "error"): void {
 	li.innerText = content;
 	output.appendChild(li);
 	li.scrollIntoView();
+
+	if (type === "in" && history[0] !== content) {
+		history.unshift(content);
+	}
 }
 
 window.addEventListener("load", init, false);
