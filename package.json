@@ -1,9 +1,24 @@
 {
 	"name": "browser-csharp",
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"description": "Executes C# snippets in the browser.",
 	"author": "Mårten Åsberg",
 	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/89netraM/browser-csharp.git"
+	},
+	"homepage": "https://github.com/89netraM/browser-csharp#readme",
+	"bugs": {
+		"url": "https://github.com/89netraM/browser-csharp/issues"
+	},
+	"keywords": [
+		"font-end",
+		"runtime",
+		"compiler",
+		"c-sharp",
+		"wasm"
+	],
 	"main": "out/index.js",
 	"typings": "typings/index.d.ts",
 	"scripts": {
