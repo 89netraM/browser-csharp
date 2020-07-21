@@ -22,12 +22,16 @@ namespace BrowserCSharp
 			"mscorlib",
 			"netstandard",
 			"System",
-			"System.Core"
+			"System.Core",
+			"System.Collections",
+			"System.Net.Http"
 		);
 		private static readonly IEnumerable<string> defaultUsings = new[]
 		{
 			"System",
-			"System.Linq"
+			"System.Collections.Generic",
+			"System.Linq",
+			"System.Net.Http"
 		};
 
 		private static Task<PortableExecutableReference[]> loadedReferences;
@@ -72,20 +76,15 @@ namespace BrowserCSharp
 				}
 			}
 
-			Assembly[] loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
 			HttpClient client = new HttpClient();
 			client.BaseAddress = new Uri(baseUri);
 
 			IDictionary<string, Task<PortableExecutableReference>> foundReferences = new Dictionary<string, Task<PortableExecutableReference>>();
 
-			foreach (Assembly assembly in loadedAssemblies)
+			foreach (string assemblyName in references)
 			{
-				string name = assembly.GetName().Name;
-				if (references.Contains(name) && !foundReferences.ContainsKey(name))
-				{
-					Task<PortableExecutableReference> task = client.GetStreamAsync(Path.Join(frameworkBinUri, assembly.Location)).ContinueWith(toReference);
-					foundReferences.Add(name, task);
-				}
+				Task<PortableExecutableReference> task = client.GetStreamAsync(Path.Join(frameworkBinUri, $"{assemblyName}.dll")).ContinueWith(toReference);
+				foundReferences.Add(assemblyName, task);
 			}
 
 			if (references.All(foundReferences.ContainsKey))
