@@ -188,16 +188,25 @@ namespace BrowserCSharp
 			MethodInfo entryPointMethod = type.GetMethod(entryPoint.MetadataName);
 
 			TextWriter ogOut = Console.Out;
-			using StringWriter sw = new StringWriter();
-			Console.SetOut(sw);
+			try
+			{
+				using StringWriter sw = new StringWriter();
+				Console.SetOut(sw);
 
-			Func<object[], Task<object>> submission = (Func<object[], Task<object>>)entryPointMethod.CreateDelegate(typeof(Func<object[], Task<object>>));
-			object result = await submission.Invoke(states).ConfigureAwait(false);
+				Func<object[], Task<object>> submission = (Func<object[], Task<object>>)entryPointMethod.CreateDelegate(typeof(Func<object[], Task<object>>));
+				object result = await submission.Invoke(states).ConfigureAwait(false);
 
-			Console.SetOut(ogOut);
-
-			string stdOut = sw.ToString();
-			return new ExecutionResult(result, stdOut.Length > 0 ? stdOut : null, null);
+				string stdOut = sw.ToString();
+				return new ExecutionResult(result, stdOut.Length > 0 ? stdOut : null, null);
+			}
+			catch (Exception ex)
+			{
+				return new ExecutionResult(null, null, ex.Message);
+			}
+			finally
+			{
+				Console.SetOut(ogOut);
+			}
 		}
 	}
 }
