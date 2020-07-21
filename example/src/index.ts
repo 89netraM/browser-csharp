@@ -98,6 +98,7 @@ window.addEventListener("load", init, false);
 BrowserCSharp.OnReady(success => {
 	if (success) {
 		input.placeholder = "Write C# code and press enter";
+		input.disabled = false;
 	}
 	else {
 		input.placeholder = "Failed to load runtime dependencies";
