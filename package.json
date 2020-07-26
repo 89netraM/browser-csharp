@@ -1,6 +1,6 @@
 {
 	"name": "browser-csharp",
-	"version": "1.1.0",
+	"version": "1.1.1",
 	"description": "Executes C# snippets in the browser.",
 	"author": "Mårten Åsberg",
 	"license": "MIT",

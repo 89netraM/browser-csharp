@@ -201,7 +201,7 @@ namespace BrowserCSharp
 			}
 			catch (Exception ex)
 			{
-				return new ExecutionResult(null, null, ex.Message);
+				return new ExecutionResult(null, null, $"{ex.GetType()}: {ex.Message}");
 			}
 			finally
 			{
