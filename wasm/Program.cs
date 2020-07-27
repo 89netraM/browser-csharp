@@ -29,7 +29,9 @@ namespace BrowserCSharp
 		private static readonly IEnumerable<string> defaultUsings = new[]
 		{
 			"System",
+			"System.Collections",
 			"System.Collections.Generic",
+			"System.Text",
 			"System.Linq",
 			"System.Net.Http"
 		};
