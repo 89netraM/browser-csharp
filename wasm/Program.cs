@@ -24,7 +24,8 @@ namespace BrowserCSharp
 			"System",
 			"System.Core",
 			"System.Collections",
-			"System.Net.Http"
+			"System.Net.Http",
+			"System.Memory"
 		);
 		private static readonly IEnumerable<string> defaultUsings = new[]
 		{

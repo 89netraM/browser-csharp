@@ -6,4 +6,5 @@
 	<assembly fullname="System.Core" />
 	<assembly fullname="System.Collections" />
 	<assembly fullname="System.Net.Http" />
+	<assembly fullname="System.Memory" />
 </linker>
