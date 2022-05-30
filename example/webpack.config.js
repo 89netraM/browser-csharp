@@ -30,7 +30,7 @@ module.exports = {
 		new HtmlPlugin({
 			template: path.resolve(__dirname, "index.html"),
 			title: "Browser C# Example",
-			base: "/"
+			base: "/browser-csharp/"
 		})
 	],
 	output: {
