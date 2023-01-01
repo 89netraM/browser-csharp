@@ -12,11 +12,11 @@
 	"devDependencies": {
 		"browser-csharp": "file:..",
 		"copy-webpack-plugin": "^6.0.3",
-		"html-webpack-plugin": "^4.3.0",
-		"ts-loader": "^8.0.0",
+		"html-webpack-plugin": "^5.5.0",
+		"ts-loader": "^8.4.0",
 		"typescript": "^3.9.6",
-		"webpack": "^4.43.0",
-		"webpack-cli": "^3.3.12",
+		"webpack": "^5.75.0",
+		"webpack-cli": "^5.0.1",
 		"webpack-dev-server": "^3.11.0"
 	}
 }
